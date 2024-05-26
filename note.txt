@@ -1,0 +1,9 @@
+sidebar
+- Dashboard
+- Messenger
+- Broadcast
+- Auto Reply
+- Campaign
+- Product
+- Order
+- Setting
