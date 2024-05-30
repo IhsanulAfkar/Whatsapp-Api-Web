@@ -1,8 +1,8 @@
 
-import { Avatar, Button, Input } from '@nextui-org/react'
+import { Avatar, Button, Input, Switch } from '@nextui-org/react'
 import { NextPage } from 'next'
-import { ConversationMessage, MessageMetadata, MessengerList } from '@/types'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { ChatbotSession, ConversationMessage, MessageMetadata, MessengerList } from '@/types'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import ProfileAvatar from '@/components/ProfileAvatar'
 import { formatDate } from '@/helper/formatDate'
@@ -11,6 +11,8 @@ import OrderModal from './OrderModal'
 import { User } from 'next-auth'
 import { ChatDetails } from './ChatDetail'
 import AddContactModal from './AddContactModal'
+import fetchClient from '@/helper/fetchClient'
+import toast from 'react-hot-toast'
 
 interface Props {
     currentMessenger: MessengerList | undefined,
@@ -26,6 +28,41 @@ interface Props {
 const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessage, listMessage, metadata, sessionId, setlistMessage, user }) => {
     const [orderModal, setorderModal] = useState(false)
     const [contactModal, setcontactModal] = useState(false)
+    const [toggleAR, settoggleAR] = useState(false)
+    const fetchARStatus = async () => {
+        if (!user.sessionId || !currentMessenger?.phone)
+            return
+        const result = await fetchClient({
+            method: "GET",
+            url: `/autoreply/${user.sessionId}/${currentMessenger?.phone}`,
+            user: user
+        })
+        if (result?.ok) {
+            const resultData: ChatbotSession = await result.json()
+            // console.log(resultData)
+            settoggleAR(resultData.isActive)
+        }
+    }
+    const handleToggle = async () => {
+        // change status
+        const result = await fetchClient({
+            method: "PUT",
+            url: `/autoreply/${user.sessionId}/${currentMessenger?.phone}`,
+            body: JSON.stringify({
+                status: !toggleAR
+            }),
+            user: user
+        })
+        if (result?.ok) {
+            settoggleAR(!toggleAR)
+            toast.success("Berhasil update auto reply")
+            return
+        }
+        toast.error("Gagal update auto reply")
+    }
+    useEffect(() => {
+        fetchARStatus()
+    }, [user, currentMessenger])
     return (<>
         {currentMessenger && (
             <>
@@ -56,6 +93,8 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
                 </div>
             </div>
             <div className='flex gap-4 items-center justify-end'>
+                <Switch size='sm' isSelected={toggleAR}
+                    onClick={() => handleToggle()} className='text-xs'>Status auto reply</Switch>
                 {!currentMessenger?.contact &&
                     <Button
                         radius='none'
@@ -69,6 +108,7 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
                         onClick={() => setorderModal(!orderModal)}
                     >Buat Order</Button>
                 }
+
             </div>
         </div>
         <div className='h-full px-6 overflow-y-auto flex flex-col'>

@@ -160,13 +160,13 @@ const Order: NextPage<Props> = ({ }) => {
                                 <Button as={Link} href={'/dashboard/messenger?phone=' + item.phoneNumber} radius='none' size='sm'>
                                     Chat
                                 </Button>
-                                <Dropdown>
+                                <Dropdown >
                                     <DropdownTrigger>
                                         <Button
                                             size='sm'
                                             radius='none'
                                             color='primary'
-                                            isDisabled={item.status === 'CANCELLED'}
+                                            isDisabled={item.status === 'CANCELLED' || item.status === 'COMPLETED'}
                                         >
                                             Ubah Status
                                         </Button>

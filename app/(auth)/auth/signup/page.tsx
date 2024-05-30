@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import Steps from "./Steps";
 export const metadata: Metadata = {
   title: "Signup Page | Next.js E-commerce Dashboard Template",
-  description: "This is Signup page for TailAdmin Next.js",
+  description: "This is Signup page for WhatsApp Api Next.js",
   // other metadata
 };
 

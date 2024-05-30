@@ -52,7 +52,7 @@ const BubbleChat = ({ text, received, status, isOutgoing = false, currentDate, m
                     ))}
                     <div className="flex justify-end items-center gap-2 mt-2">
                         <p className="text-customGray">{receivedMessage}</p>
-                        <p>{status}</p>
+                        {/* <p>{status}</p> */}
                     </div>
                 </div>
             </div>

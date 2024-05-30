@@ -6,7 +6,7 @@ import ChartTwo from "@/components/Charts/ChartTwo";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Chart Page | Next.js E-commerce Dashboard Template",
-  description: "This is Chart Page for TailAdmin Next.js",
+  description: "This is Chart Page for WhatsApp Api Next.js",
   // other metadata
 };
 

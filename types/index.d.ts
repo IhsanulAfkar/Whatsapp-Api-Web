@@ -54,6 +54,13 @@ export type DeviceTypes = {
     businessHourId: null,
     userId: 1
 }
+export type ChatbotSession = {
+    pkId: number,
+    id: string,
+    phone: string,
+    sessionId: string,
+    isActive: boolean
+}
 export type SelectedKeyState = Set<string> | 'all'
 
 export type GetSessionType = {
