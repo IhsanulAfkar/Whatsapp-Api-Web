@@ -62,7 +62,7 @@ const EditCampaign: NextPage<Props> = ({ campaignId }) => {
             const resultData: CampaignTypes = await result.json()
             // setValue('name', resultData.name)
             // setValue('schedule', resultData.schedule)
-            if (resultData.recipients[0] === ' all') {
+            if (resultData.recipients[0] === 'all') {
                 setisAllContact(true)
             }
             if (resultData.mediaPath) {

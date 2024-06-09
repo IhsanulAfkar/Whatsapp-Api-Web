@@ -78,7 +78,6 @@ export const config: AuthOptions = {
             },
             authorize: async (credentials) => {
                 try {
-
                     const userData: User = JSON.parse(credentials?.user!)
                     const result = await fetch(process.env.BACKEND_URL + '/auth/refresh-token', {
                         method: 'POST',

@@ -46,9 +46,11 @@ const QRModal: NextPage<Props> = ({ openModal, refresh, setopenModal, user, sock
     }, [openModal])
     useEffect(() => {
         const refreshSession = async () => {
-            await delay(1500)
+
             if (user) {
+                await delay(3000)
                 const refresh = await signIn('refresh', {
+                    redirect: false,
                     user: JSON.stringify(user)
                 })
                 if (refresh?.error) {
