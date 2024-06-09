@@ -174,8 +174,6 @@ const Order: NextPage<Props> = ({ }) => {
                                     <DropdownMenu aria-label="Static Actions" className='font-medium'
                                         onAction={key => changeOrderStatus(item, (key as OrderStatus))}>
                                         <DropdownItem key="PROCESSING" color='warning'>PROCESSING</DropdownItem>
-                                        <DropdownItem key="DELIVERED"
-                                            color='success'>DELIVERED</DropdownItem>
                                         <DropdownItem key="COMPLETED" color='primary'>COMPLETED</DropdownItem>
 
                                         <DropdownItem key="CANCELLED" color='danger'>CANCELLED</DropdownItem>

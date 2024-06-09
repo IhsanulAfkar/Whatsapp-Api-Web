@@ -54,15 +54,17 @@ const SignUp: NextPage<Props> = ({ setStep, setUserData, userData }) => {
                 })
                 setStep('verify')
             }
-            const resultData = await result.json()
-            console.log(resultData)
-            if (resultData.username) {
+            const resultData = (await result.json()).error
 
+            console.log(resultData)
+
+            if (resultData.username) {
                 console.log("Error username")
                 setError('username', {
                     type: 'custom',
                     message: resultData.username
                 })
+                toast.error(resultData.username)
             }
             if (resultData.email) {
                 console.log("Error email")
@@ -70,6 +72,7 @@ const SignUp: NextPage<Props> = ({ setStep, setUserData, userData }) => {
                     type: 'custom',
                     message: resultData.email
                 })
+                toast.error(resultData.email)
             }
             if (resultData.phone) {
                 console.log("Error phone")
@@ -77,6 +80,7 @@ const SignUp: NextPage<Props> = ({ setStep, setUserData, userData }) => {
                     type: 'custom',
                     message: resultData.phone
                 })
+                toast.error(resultData.phone)
             }
         } catch (error) {
             console.log(error)

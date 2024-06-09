@@ -21,8 +21,7 @@ const BroadcastTable: NextPage<Props> = ({ broadcast, user }) => {
     const [broadcastDetail, setbroadcastDetail] = useState({
         Terkirim: [],
         Diterima: [],
-        Terbaca: [],
-        Balasan: []
+        Terbaca: []
     })
 
     const [currentPage, setcurrentPage] = useState<MessageTableStatus>('Terkirim')
@@ -43,18 +42,11 @@ const BroadcastTable: NextPage<Props> = ({ broadcast, user }) => {
             method: 'GET',
             user: user
         })
-        const fetchReply = await fetchClient({
-            url: '/broadcasts/' + broadcast.id + '/replies',
-            method: 'GET',
-            user: user
-        })
-
-        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok && fetchReply?.ok) {
+        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok) {
             setbroadcastDetail({
                 Terkirim: (await fetchSent.json()).outgoingBroadcasts,
                 Terbaca: (await fetchRead.json()).outgoingBroadcasts,
                 Diterima: (await fetchReceived.json()).outgoingBroadcasts,
-                Balasan: (await fetchReply.json()).broadcastReplies
             })
         }
         // setisDetailBroadcastLoaded(true)
@@ -72,7 +64,6 @@ const BroadcastTable: NextPage<Props> = ({ broadcast, user }) => {
                     <Tab key="Terkirim" title="Terkirim" />
                     <Tab key="Diterima" title="Diterima" />
                     <Tab key="Terbaca" title="Terbaca" />
-                    <Tab key="Balasan" title="Balasan" />
                 </Tabs>
             </div>
 

@@ -37,18 +37,11 @@ const DetailCampaignTable: NextPage<Props> = ({ campaign, user }) => {
             method: 'GET',
             user: user
         })
-        const fetchReply = await fetchClient({
-            url: '/campaigns/' + campaign.id + '/replies',
-            method: 'GET',
-            user: user
-        })
-
-        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok && fetchReply?.ok) {
+        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok) {
             setcampaignDetail({
                 Terkirim: (await fetchSent.json()).outgoingCampaigns,
                 Terbaca: (await fetchRead.json()).outgoingCampaigns,
-                Diterima: (await fetchReceived.json()).outgoingCampaigns,
-                Balasan: (await fetchReply.json()).campaignReplies
+                Diterima: (await fetchReceived.json()).outgoingCampaigns
             })
         }
     }
@@ -71,7 +64,6 @@ const DetailCampaignTable: NextPage<Props> = ({ campaign, user }) => {
                     <Tab key="Terkirim" title="Terkirim" />
                     <Tab key="Diterima" title="Diterima" />
                     <Tab key="Terbaca" title="Terbaca" />
-                    <Tab key="Balasan" title="Balasan" />
                 </Tabs>
             </div>
 
@@ -147,7 +139,6 @@ const DetailCampaignTable: NextPage<Props> = ({ campaign, user }) => {
                                                             Nomor ini tidak ada di kontak
                                                         </p>
                                                         <div className='flex justify-end '>
-
                                                             {/* <Button onClick={() => handleAddContactClick(item.from! + item.to)}
                                                                 color='primary'
                                                                 radius='md'

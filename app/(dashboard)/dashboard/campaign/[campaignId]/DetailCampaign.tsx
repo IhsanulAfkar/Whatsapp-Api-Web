@@ -28,8 +28,7 @@ const DetailCampaign: NextPage<Props> = ({ campaignId }) => {
     const [campaignDetail, setcampaignDetail] = useState({
         Terkirim: [],
         Diterima: [],
-        Terbaca: [],
-        Balasan: []
+        Terbaca: []
     })
     const fetchCampaign = async () => {
         const result = await fetchClient({
@@ -81,6 +80,14 @@ const DetailCampaign: NextPage<Props> = ({ campaignId }) => {
                             <th className='font-medium text-start'>Jadwal</th>
                             <td>{formatDate(campaignData?.schedule!)}</td>
                         </tr>
+                        <tr>
+                            <th className='font-medium text-start'>Reg. Syntax</th>
+                            <td>{campaignData?.registrationSyntax}</td>
+                        </tr>
+                        <tr>
+                            <th className='font-medium text-start'>Unreg. Syntax</th>
+                            <td>{campaignData?.unregistrationSyntax}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -92,7 +99,6 @@ const DetailCampaign: NextPage<Props> = ({ campaignId }) => {
                         title: 'text-md font-medium',
                         indicator: 'text-md',
                     }}
-                // variant='bordered'
                 >
                     <AccordionItem
                         key="1" aria-label="register" title="Tampilan Pesan register">
@@ -119,6 +125,9 @@ const DetailCampaign: NextPage<Props> = ({ campaignId }) => {
                         )}
                     </>
                 )}
+                <div className='mt-4 flex justify-end'>
+                    <Button as={Link} href={`/dashboard/campaign/${campaignData?.id}/edit`} radius='none' color='primary' variant='bordered'>Edit</Button>
+                </div>
             </div>
         </Card>
         {campaignData && (

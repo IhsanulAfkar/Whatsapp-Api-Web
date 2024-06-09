@@ -345,4 +345,4 @@ export interface ContactGroup {
     groupId: number,
     contact: ContactData
 }
-export type MessageTableStatus = 'Terkirim' | 'Diterima' | 'Terbaca' | 'Balasan'
+export type MessageTableStatus = 'Terkirim' | 'Diterima' | 'Terbaca'
