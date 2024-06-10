@@ -36,7 +36,7 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
 
     const fetchContactList = async () => {
         const result = await fetchClient({
-            method: 'GET',
+        method: 'GET',
             url: '/contacts',
             user: session?.user
         })

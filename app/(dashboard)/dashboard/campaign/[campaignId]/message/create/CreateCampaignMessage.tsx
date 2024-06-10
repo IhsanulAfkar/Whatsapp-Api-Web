@@ -178,7 +178,7 @@ const CreateCampaignMessage: NextPage<Props> = ({ campaignId }) => {
 
                 <div className='flex justify-end'>
                     <Button
-                        isLoading={isLoading} color='primary' radius='none' type='submit'>Buat Campaign</Button>
+                        isLoading={isLoading} color='primary' radius='none' type='submit'>Buat Pesan</Button>
                 </div>
             </Card>
         </form>

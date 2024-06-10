@@ -31,8 +31,7 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
     const [campaignMessageDetail, setcampaignMessageDetail] = useState<any>({
         Terkirim: [],
         Diterima: [],
-        Terbaca: [],
-        Balasan: []
+        Terbaca: []
     })
     const [currentPage, setcurrentPage] = useState<MessageTableStatus>('Terkirim')
     const fetchCampaign = async () => {
@@ -86,18 +85,11 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
             method: 'GET',
             user: session?.user
         })
-        const fetchReply = await fetchClient({
-            url: '/campaigns/messages/' + campaignMessageData?.id + '/replies',
-            method: 'GET',
-            user: session?.user
-        })
-
-        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok && fetchReply?.ok) {
+        if (fetchSent?.ok && fetchRead?.ok && fetchReceived?.ok) {
             setcampaignMessageDetail({
                 Terkirim: (await fetchSent.json()).outgoingCampaignMessages,
                 Terbaca: (await fetchRead.json()).outgoingCampaignMessages,
-                Diterima: (await fetchReceived.json()).outgoingCampaignMessages,
-                Balasan: (await fetchReply.json()).campaignMessageReplies
+                Diterima: (await fetchReceived.json()).outgoingCampaignMessages
             })
         }
     }
@@ -120,7 +112,6 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
         <Button className='mb-4' radius='none' variant={'faded'} as={Link} href={route('campaign') + `/${campaignData?.id}/message/${campaignMessageData?.id}`}>Kembali</Button>
         <div className='flex gap-4 justify-between'>
             <HeaderText>{`Campaign Message: ${campaignData?.name}/${campaignMessageData?.name}`}</HeaderText>
-            <Button as={Link} href={route('campaign') + `/${campaignData?.id}/message`} color='primary' radius='none'>Pesan Campaign</Button>
         </div>
         <Card className='w-full flex gap-4 flex-col md:flex-row'>
             <div className='w-full max-w-sm'>
@@ -180,7 +171,6 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
                         <Tab key="Terkirim" title="Terkirim" />
                         <Tab key="Diterima" title="Diterima" />
                         <Tab key="Terbaca" title="Terbaca" />
-                        <Tab key="Balasan" title="Balasan" />
                     </Tabs>
                 </div>
 

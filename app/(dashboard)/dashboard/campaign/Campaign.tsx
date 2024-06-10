@@ -122,7 +122,6 @@ const Campaign: NextPage<Props> = ({ }) => {
                 <TableColumn>Status</TableColumn>
                 <TableColumn>Register Syntax</TableColumn>
                 <TableColumn>Subcscriber</TableColumn>
-                <TableColumn>Device</TableColumn>
                 <TableColumn>Tanggal Kirim</TableColumn>
                 <TableColumn>Tanggal diupdate</TableColumn>
                 <TableColumn>Detail</TableColumn>
@@ -156,11 +155,7 @@ const Campaign: NextPage<Props> = ({ }) => {
                                 {item.recipients[0] === 'all' ? 'Semua' : item.recipients.length}
                             </p>
                         </TableCell>
-                        <TableCell>
-                            <p>
-                                {item.device.name}
-                            </p>
-                        </TableCell>
+
                         <TableCell>
                             {formatDate(item.createdAt)}
                         </TableCell>

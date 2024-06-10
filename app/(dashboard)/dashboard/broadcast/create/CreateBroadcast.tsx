@@ -4,8 +4,8 @@ import Card from '@/components/Card'
 import UploadFile from '@/components/file/UploadFile'
 import fetchClient from '@/helper/fetchClient'
 import { formatDatetoISO8601 } from '@/helper/utils'
-import { ContactTypes, SelectedKeyState } from '@/types'
-import { Button, Chip, Input, Select, SelectItem, Textarea } from '@nextui-org/react'
+import { ContactTypes, GroupDataTypes, SelectedKeyState } from '@/types'
+import { Button, Checkbox, Chip, Input, Select, SelectItem, Textarea } from '@nextui-org/react'
 import { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -27,6 +27,9 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
     const { register, formState: { errors }, handleSubmit, setValue } = useForm<BroadcastForm>()
     const [isLoading, setIsLoading] = useState(false)
     const [selectedReceiver, setselectedReceiver] = useState<SelectedKeyState>(new Set())
+    const [isAllContact, setisAllContact] = useState(false);
+    const [listGroup, setlistGroup] = useState<GroupDataTypes[]>([])
+    const [selectedGroup, setselectedGroup] = useState<SelectedKeyState>(new Set())
     const [searchText, setSearchText] = useState('')
     const [listContact, setlistContact] = useState<ContactTypes[]>([])
     const [searchedListContact, setsearchedListContact] = useState<ContactTypes[]>([])
@@ -45,7 +48,19 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
         }
         toast.error('Gagal fetch penerima')
         console.log(await result?.text())
-
+    }
+    const fetchGroupList = async () => {
+        const result = await fetchClient({
+            url: '/groups',
+            method: 'GET',
+            user: session?.user
+        })
+        if (result?.ok) {
+            setlistGroup(await result.json())
+            return
+        }
+        toast.error('Gagal fetch grup')
+        console.log(await result?.text())
     }
     const filterContact = () => {
         if (searchText === '') return
@@ -63,20 +78,15 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
         try {
             setIsLoading(true)
             let mark = true
-            if (Array.from(selectedReceiver).length === 0) {
+            if (Array.from(selectedReceiver).length === 0 && Array.from(selectedGroup).length === 0) {
                 toast.error('Penerima masih kosong!')
                 mark = false
             }
-            // if (textInput.length === 0) {
-            //     toast.error('Response masih kosong!')
-            //     mark = false
-            // }
             if (!session?.user?.deviceId) {
                 toast.error('Device masih kosong!')
                 mark = false
             }
             if (mark) {
-                // error here
                 const formData = new FormData()
                 const delay = 4000
                 if (files.length > 0) {
@@ -85,9 +95,14 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
                 }
                 formData.append('name', broadcastFormData.name)
                 formData.append('deviceId', session?.user?.deviceId!)
-
-                Array.from(selectedReceiver).forEach((element, idx) => {
-                    formData.append(`recipients[${idx}]`, element)
+                let counter = 0
+                Array.from(selectedReceiver).forEach(element => {
+                    formData.append(`recipients[${counter}]`, element)
+                    counter++
+                })
+                Array.from(selectedGroup).forEach(element => {
+                    formData.append(`recipients[${counter}]`, `group_${element}`)
+                    counter++
                 })
                 formData.append('message', broadcastText)
                 formData.append('delay', delay.toString())
@@ -115,6 +130,7 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
     useEffect(() => {
         if (session?.user) {
             fetchListContact()
+            fetchGroupList()
         }
     }, [session?.user])
     useEffect(() => {
@@ -200,6 +216,41 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
                             </SelectItem>
                         ))}
                     </Select>
+                    <Select
+                        className='mt-4'
+                        variant='underlined'
+                        placeholder='grup penerima'
+                        selectionMode='multiple'
+                        selectedKeys={selectedGroup}
+                        isMultiline
+                        onChange={e => {
+                            setselectedGroup(new Set(e.target.value.split(",")));
+                        }}
+                        items={listGroup}
+                        renderValue={items => (
+                            <div className='flex gap-2 flex-wrap'>
+                                {items.map(item => (
+                                    <Chip variant='faded' key={item.key}>{item.data?.name}</Chip>
+                                ))}
+                            </div>
+                        )}
+                    >
+                        {(e => (
+                            <SelectItem key={e.name} value={e.name}>
+                                <div className='flex flex-col '>
+                                    <span className='text-small'>{e.name}</span>
+                                    <span className='text-tiny'>{e.type}</span>
+                                </div>
+                            </SelectItem>
+                        ))}
+                    </Select>
+                    <Checkbox
+                        radius='none'
+                        className='mt-2'
+                        isSelected={isAllContact}
+                        onValueChange={setisAllContact}>
+                        Kirim ke semua kontak?
+                    </Checkbox>
                 </div>
             </Card>
             <Card className='w-full flex flex-col gap-4 py-4'>

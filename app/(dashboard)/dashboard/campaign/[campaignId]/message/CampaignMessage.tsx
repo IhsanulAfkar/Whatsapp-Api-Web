@@ -63,7 +63,7 @@ const CampaignMessage: NextPage<Props> = ({ campaignId }) => {
         }
     }, [campaignData])
     return (<>
-        <HeaderText>{`Campaign Messages: ${campaignData?.name}`}</HeaderText>
+        <HeaderText>{`Pesan Campaign: ${campaignData?.name}`}</HeaderText>
         <Card className='flex justify-between gap-4 items-center flex-col md:flex-row'>
             <div className='relative max-w-sm w-full'>
                 <Input type='text' className='w-full' variant='underlined' placeholder='cari message' />
@@ -74,7 +74,7 @@ const CampaignMessage: NextPage<Props> = ({ campaignId }) => {
             {((selectedMessage as Set<string>).size > 0 || selectedMessage === 'all') ? (<>
                 <Button variant="light" radius="none" color="danger" onClick={() => { }}>Hapus Message</Button>
             </>) : (<>
-                <Button variant="light" radius="none" color="primary" onClick={() => push(`/dashboard/campaign/${campaignData?.id}/message/create`)}>Buat Message</Button>
+                <Button variant="light" radius="none" color="primary" onClick={() => push(`/dashboard/campaign/${campaignData?.id}/message/create`)}>Buat Pesan</Button>
             </>)}
         </Card>
         <Table
