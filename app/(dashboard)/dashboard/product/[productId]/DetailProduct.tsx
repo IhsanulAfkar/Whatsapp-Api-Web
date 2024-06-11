@@ -59,7 +59,7 @@ const DetailProduct: NextPage<Props> = ({ productId }) => {
                 // @ts-ignore
                 formData.set('media', files[0].file, files[0].name)
             }
-            formData.append('name', data.name)
+            // formData.append('name', data.name)
             formData.append('description', data.description)
             formData.append('price', data.price.toString())
             formData.append('amount', data.amount.toString())
@@ -103,13 +103,9 @@ const DetailProduct: NextPage<Props> = ({ productId }) => {
                             <Input variant='underlined'
                                 type="text"
                                 size='lg'
-                                classNames={{
-                                    inputWrapper: errors.name && 'border-danger'
-                                }}
+                                isDisabled
                                 defaultValue={product.name}
-                                placeholder='masukkan nama produk'
-                                color={errors.name ? "danger" : "default"}
-                                {...register('name', { required: true })} />
+                            />
                         ) : (
                             <div className='my-2 font-medium'>
                                 {product.name}

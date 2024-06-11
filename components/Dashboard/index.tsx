@@ -89,6 +89,7 @@ const Dashboard: React.FC = () => {
       fetchDevice()
       fetchAutoReply()
       fetchOrder()
+      console.log(session.user)
     }
   }, [session?.user])
   return (

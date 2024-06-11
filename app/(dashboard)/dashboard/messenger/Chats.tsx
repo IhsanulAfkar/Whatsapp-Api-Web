@@ -34,7 +34,7 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
             return
         const result = await fetchClient({
             method: "GET",
-            url: `/autoreply/${user.sessionId}/${currentMessenger?.phone}`,
+            url: `/autoreply/${user.deviceId}/${currentMessenger?.phone}`,
             user: user
         })
         if (result?.ok) {
@@ -47,7 +47,7 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
         // change status
         const result = await fetchClient({
             method: "PUT",
-            url: `/autoreply/${user.sessionId}/${currentMessenger?.phone}`,
+            url: `/autoreply/${user.deviceId}/${currentMessenger?.phone}`,
             body: JSON.stringify({
                 status: !toggleAR
             }),
