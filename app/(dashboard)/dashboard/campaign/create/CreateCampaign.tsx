@@ -5,7 +5,7 @@ import UploadFile from '@/components/file/UploadFile'
 import fetchClient from '@/helper/fetchClient'
 import { formatDatetoISO8601 } from '@/helper/utils'
 import route from '@/routes'
-import { CampaignMessageStatus, CampaignTypes, ContactTypes } from '@/types'
+import { CampaignMessageStatus, CampaignTypes, ContactTypes, GroupDataTypes, SelectedKeyState } from '@/types'
 import { Button, Checkbox, Chip, Input, Select, Selection, SelectItem, Tab, Tabs, Textarea } from '@nextui-org/react'
 import { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
@@ -26,6 +26,8 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
     const [selectedReceiver, setselectedReceiver] = useState<Selection>(new Set())
     const [isAllContact, setisAllContact] = useState(false);
     const [listContact, setlistContact] = useState<ContactTypes[]>([])
+    const [listGroup, setlistGroup] = useState<GroupDataTypes[]>([])
+    const [selectedGroup, setselectedGroup] = useState<SelectedKeyState>(new Set())
     const [searchedListContact, setsearchedListContact] = useState<ContactTypes[]>([])
     const [currentMessage, setcurrentMessage] = useState<CampaignMessageStatus>('registrationMessage')
     const [registrationMessage, setregistrationMessage] = useState('')
@@ -48,6 +50,19 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
         toast.error('Gagal fetch contact')
         console.log(await result?.text())
     }
+    const fetchGroupList = async () => {
+        const result = await fetchClient({
+            url: '/groups',
+            method: 'GET',
+            user: session?.user
+        })
+        if (result?.ok) {
+            setlistGroup(await result.json())
+            return
+        }
+        toast.error('Gagal fetch grup')
+        console.log(await result?.text())
+    }
     const onSubmit = async (data: CampaignTypes) => {
         const formData = new FormData()
         const delay = 4000
@@ -58,11 +73,21 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
         }
         formData.append('name', data.name)
         // formData.append('deviceId', data.deviceId)
+        if (Array.from(selectedReceiver).length === 0 && Array.from(selectedGroup).length === 0) {
+            toast.error('Penerima masih kosong!')
+            return
+        }
         if (isAllContact) {
             formData.append('recipients[0]', 'all')
-        } else if ((selectedReceiver as Set<string>).size > 0) {
-            Array.from(selectedReceiver).forEach((element, idx) => {
-                formData.append(`recipients[${idx}]`, element.toString())
+        } else {
+            let counter = 0
+            Array.from(selectedReceiver).forEach(element => {
+                formData.append(`recipients[${counter}]`, element.toString())
+                counter++
+            })
+            Array.from(selectedGroup).forEach(element => {
+                formData.append(`recipients[${counter}]`, `group_${element}`)
+                counter++
             })
         }
         formData.append('registrationMessage', registrationMessage)
@@ -112,6 +137,7 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
     useEffect(() => {
         if (session?.user) {
             fetchContactList()
+            fetchGroupList()
         }
     }, [session?.user])
     useEffect(() => {
@@ -192,6 +218,34 @@ const CreateCampaign: NextPage<Props> = ({ }) => {
                                 <div className='flex flex-col '>
                                     <span className='text-small'>{e.firstName} {e.lastName}</span>
                                     <span className='text-tiny'>{e.phone}</span>
+                                </div>
+                            </SelectItem>
+                        ))}
+                    </Select>
+                    <Select
+                        className='mt-4'
+                        variant='underlined'
+                        placeholder='grup penerima'
+                        selectionMode='multiple'
+                        selectedKeys={selectedGroup}
+                        isMultiline
+                        onChange={e => {
+                            setselectedGroup(new Set(e.target.value.split(",")));
+                        }}
+                        items={listGroup}
+                        renderValue={items => (
+                            <div className='flex gap-2 flex-wrap'>
+                                {items.map(item => (
+                                    <Chip variant='faded' key={item.key}>{item.data?.name}</Chip>
+                                ))}
+                            </div>
+                        )}
+                    >
+                        {(e => (
+                            <SelectItem key={e.name} value={e.name}>
+                                <div className='flex flex-col '>
+                                    <span className='text-small'>{e.name}</span>
+                                    <span className='text-tiny'>{e.type}</span>
                                 </div>
                             </SelectItem>
                         ))}
