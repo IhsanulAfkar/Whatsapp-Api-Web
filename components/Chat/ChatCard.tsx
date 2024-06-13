@@ -122,18 +122,17 @@ const MessengerCard = ({ currentMessenger, handleClick, item }: {
           </p>
           <p>
             <span className="text-sm text-black dark:text-white text-ellipsis overflow-hidden ">
-              {(item.latestMessage && item.latestMessage?.message.length <= 60) ? item.latestMessage?.message : item.latestMessage?.message.slice(0, 60) + "..."}
+              {(item.latestMessage && item.latestMessage?.message.length <= 60) ? (item.latestMessage?.message) : (item.latestMessage ? `${item.latestMessage?.message.slice(0, 60)} "..."` : '')}
               {/* {chat.text} */}
             </span>
-            <span className="text-xs"> . {getTimeDifference()}</span>
+            <span className="text-xs"> {getTimeDifference()}</span>
           </p>
         </div>
-
         {item.unreadMessages > 0 && (
           <div className="flex flex-none h-6 w-6 items-center justify-center rounded-full bg-primary">
             <span className="text-sm font-medium text-white ">
               {" "}
-              {item.unreadMessages}
+              {item.unreadMessages ? item.unreadMessages : ""}
             </span>
           </div>
         )}
