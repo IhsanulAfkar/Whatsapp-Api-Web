@@ -2,8 +2,10 @@
 
 import route from "@/routes";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
+import { useSession } from "next-auth/react";
 
 export default function App() {
+    const { data: session } = useSession()
     return (
         <Navbar position="sticky" className=" shadow-xl">
             <NavbarBrand>
@@ -28,12 +30,19 @@ export default function App() {
             </NavbarContent> */}
             <NavbarContent justify="end">
                 <NavbarItem className="hidden lg:flex">
-                    <Link href={route('signin')}>Login</Link>
+                    {!session?.user &&
+                        <Link href={route('signin')}>Login</Link>
+                    }
                 </NavbarItem>
                 <NavbarItem>
-                    <Button as={Link} color="primary" href={route('signup')} variant="flat">
-                        Sign Up
-                    </Button>
+                    {session?.user ?
+                        <Button as={Link} color="primary" href={route('dashboard')} variant="flat">
+                            Dashboard
+                        </Button> :
+                        <Button as={Link} color="primary" href={route('signup')} variant="flat">
+                            Sign Up
+                        </Button>
+                    }
                 </NavbarItem>
             </NavbarContent>
         </Navbar>
