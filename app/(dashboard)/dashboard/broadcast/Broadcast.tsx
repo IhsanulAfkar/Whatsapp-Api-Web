@@ -104,7 +104,6 @@ const Broadcast: NextPage<Props> = ({ }) => {
         </div>
 
         <Table
-            aria-label="Incoming Chat"
             color='default'
             selectionMode="multiple"
             aria-labelledby='broadcast table'
@@ -121,8 +120,8 @@ const Broadcast: NextPage<Props> = ({ }) => {
                 <TableColumn>Nama</TableColumn>
                 <TableColumn>Status</TableColumn>
                 {/* <TableColumn>Device</TableColumn> */}
-                <TableColumn>Dibuat Pada</TableColumn>
                 <TableColumn>Terakhir Update</TableColumn>
+                <TableColumn>Jadwal Kirim</TableColumn>
                 <TableColumn>Detail</TableColumn>
             </TableHeader>
             <TableBody emptyContent={<div className='w-full p-12'>
@@ -142,10 +141,10 @@ const Broadcast: NextPage<Props> = ({ }) => {
                             {item.device.name}
                         </TableCell> */}
                         <TableCell>
-                            {formatDate(item.createdAt)}
+                            {formatDate(item.updatedAt)}
                         </TableCell>
                         <TableCell>
-                            {formatDate(item.updatedAt)}
+                            {item.schedule ? formatDate(item.schedule) : '-'}
                         </TableCell>
                         <TableCell>
                             <Button radius='none' variant='bordered' onClick={() => push('/dashboard/broadcast/' + item.id)}>

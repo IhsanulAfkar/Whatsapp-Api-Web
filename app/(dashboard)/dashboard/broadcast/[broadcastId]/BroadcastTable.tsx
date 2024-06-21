@@ -99,9 +99,9 @@ const BroadcastTable: NextPage<Props> = ({ broadcast, user }) => {
                         {(item: ContactBroadcast) => (
                             <TableRow key={item.id}>
                                 <TableCell className='flex gap-2 items-center'>
-                                    <p>{item.contact.firstName} {item.contact.lastName}</p>
+                                    <p>{item.contact?.firstName || ""} {item.contact?.lastName || ''}</p>
                                 </TableCell>
-                                <TableCell >{item.contact.phone}</TableCell>
+                                <TableCell >{item.contact?.phone || ''}</TableCell>
 
                                 <TableCell >{formatDate(item.createdAt)}</TableCell>
 

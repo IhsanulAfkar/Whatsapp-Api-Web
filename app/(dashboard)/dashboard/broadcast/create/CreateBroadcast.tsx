@@ -267,6 +267,12 @@ const CreateBroadcast: NextPage<Props> = ({ }) => {
                         placeholder='tuliskan pesan disini'
                         value={broadcastText}
                         onChange={e => setBroadcastText(e.target.value)}
+                    // onChange={e => {
+                    //     if (e.target.value.length < 255)
+                    //         setBroadcastText(e.target.value)
+                    //     else
+                    //         setBroadcastText(e.target.value.slice(0, 255))
+                    // }}
                     />
                     <div className='mt-4'>
 
