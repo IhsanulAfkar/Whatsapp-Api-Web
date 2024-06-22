@@ -52,6 +52,8 @@ const DetailProduct: NextPage<Props> = ({ productId }) => {
         console.log(await result?.text())
     }
     const onSubmit = async (data: ProductForm) => {
+        console.log(data)
+        // return
         try {
             setisLoading(true)
             const formData = new FormData()
@@ -60,7 +62,8 @@ const DetailProduct: NextPage<Props> = ({ productId }) => {
                 formData.set('media', files[0].file, files[0].name)
             }
             // formData.append('name', data.name)
-            formData.append('description', data.description)
+            if (data.description)
+                formData.append('description', data.description)
             formData.append('price', data.price.toString())
             formData.append('amount', data.amount.toString())
             const result = await fetchClient({
