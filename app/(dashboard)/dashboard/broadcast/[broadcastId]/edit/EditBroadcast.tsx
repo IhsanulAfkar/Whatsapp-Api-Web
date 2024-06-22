@@ -1,21 +1,45 @@
 'use client'
+import IconSearch from '@/components/assets/icons/search'
+import Card from '@/components/Card'
 import HeaderText from '@/components/Dashboard/HeaderText'
+import UploadFile from '@/components/file/UploadFile'
 import fetchClient from '@/helper/fetchClient'
-import { BroadcastData } from '@/types'
+import { getFileFromUrl } from '@/helper/fileHelper'
+import { formatDatetoISO8601 } from '@/helper/utils'
+import { BroadcastData, ContactTypes, GroupDataTypes, SelectedKeyState } from '@/types'
+import { Button, Checkbox, Chip, Input, Select, SelectItem, Textarea } from '@nextui-org/react'
 import { NextPage } from 'next'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 
 interface Props {
     broadcastId: string
 }
-
+interface BroadcastForm {
+    name: string,
+    recipients: string[],
+    message: string,
+    delay: number,
+    schedule: string
+}
 const EditBroadcast: NextPage<Props> = ({ broadcastId }) => {
     const { push } = useRouter()
     const { data: session } = useSession()
-    const [broadcast, setBroadcast] = useState<BroadcastData>()
+    const [broadcastData, setBroadcastData] = useState<BroadcastData>()
+    const { register, formState: { errors }, handleSubmit, setValue } = useForm<BroadcastForm>()
+    const [isLoading, setIsLoading] = useState(false)
+    const [selectedReceiver, setselectedReceiver] = useState<SelectedKeyState>(new Set())
+    const [isAllContact, setisAllContact] = useState(false);
+    const [listGroup, setlistGroup] = useState<GroupDataTypes[]>([])
+    const [selectedGroup, setselectedGroup] = useState<SelectedKeyState>(new Set())
+    const [searchText, setSearchText] = useState('')
+    const [listContact, setlistContact] = useState<ContactTypes[]>([])
+    const [searchedListContact, setsearchedListContact] = useState<ContactTypes[]>([])
+    const [broadcastText, setBroadcastText] = useState('')
+    const [files, setfiles] = useState<File[]>([])
     const fetchBroadcast = async () => {
         const result = await fetchClient({
             method: 'GET',
@@ -23,9 +47,16 @@ const EditBroadcast: NextPage<Props> = ({ broadcastId }) => {
             user: session?.user
         })
         if (result?.ok) {
-            const resultData = await result.json()
-            setBroadcast(resultData)
+            const resultData: BroadcastData = await result.json()
+            setBroadcastData(resultData)
             console.log(resultData)
+            if (resultData.recipients[0] === 'all') {
+                setisAllContact(true)
+            }
+            if (resultData.mediaPath) {
+                getFileFromUrl(resultData.mediaPath, setfiles)
+            }
+            setBroadcastText(resultData.message)
             return
         }
         if (result?.status === 404) {
@@ -36,13 +67,249 @@ const EditBroadcast: NextPage<Props> = ({ broadcastId }) => {
         toast.error('Server Error')
         console.log(await result?.text())
     }
+    const fetchGroupList = async () => {
+        const result = await fetchClient({
+            url: '/groups',
+            method: 'GET',
+            user: session?.user
+        })
+        if (result?.ok) {
+            setlistGroup(await result.json())
+            return
+        }
+        toast.error('Gagal fetch grup')
+        console.log(await result?.text())
+    }
+    const filterContact = () => {
+        if (searchText === '') return
+
+        const newContact = listContact.filter(contact => {
+            console.log(contact)
+            console.log(searchText)
+            if (contact.firstName.toLowerCase().includes(searchText) || contact.lastName.toLowerCase().includes(searchText) || `${contact.firstName} ${contact.lastName}`.toLowerCase().includes(searchText) || contact.phone.includes(searchText))
+                return true
+        })
+        console.log(newContact)
+        setsearchedListContact(newContact)
+    }
+    const onSubmit = async (broadcastFormData: BroadcastForm) => {
+        try {
+            setIsLoading(true)
+            let mark = true
+            if ((Array.from(selectedReceiver).length === 0 && Array.from(selectedGroup).length === 0) && !isAllContact) {
+                toast.error('Penerima masih kosong!')
+                mark = false
+            }
+            if (!session?.user?.deviceId) {
+                toast.error('Device masih kosong!')
+                mark = false
+            }
+            if (mark) {
+                const formData = new FormData()
+                const delay = 4000
+                if (files.length > 0) {
+                    // @ts-ignore
+                    formData.set('media', files[0].file, files[0].name)
+                }
+                formData.append('name', broadcastFormData.name)
+                formData.append('deviceId', session?.user?.deviceId!)
+                let counter = 0
+                if (isAllContact) {
+                    formData.append('recipients[0]', 'all')
+                } else {
+                    Array.from(selectedReceiver).forEach(element => {
+                        formData.append(`recipients[${counter}]`, element)
+                        counter++
+                    })
+                    Array.from(selectedGroup).forEach(element => {
+                        formData.append(`recipients[${counter}]`, `group_${element}`)
+                        counter++
+                    })
+                }
+                formData.append('message', broadcastText)
+                formData.append('delay', delay.toString())
+                formData.append('schedule', formatDatetoISO8601(broadcastFormData.schedule))
+                const result = await fetchClient({
+                    url: '/broadcasts/' + broadcastId,
+                    method: 'PUT',
+                    body: formData,
+                    isFormData: true,
+                    user: session?.user
+                })
+                if (result?.ok) {
+                    toast.success('Berhasil ubah broadcast')
+                    push('/dashboard/broadcast')
+                } else {
+                    toast.error('Gagal ubah broadcast')
+                }
+            }
+            setIsLoading(false)
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+    useEffect(() => {
+        if (searchText)
+            filterContact()
+
+    }, [searchText])
     useEffect(() => {
         if (session?.user) {
             fetchBroadcast()
+            fetchGroupList()
         }
     }, [session?.user])
     return (<>
-        <HeaderText>{`Edit Broadcast: ${broadcast?.name}`}</HeaderText>
+        {broadcastData && (<>
+            <HeaderText>{`Edit Broadcast: ${broadcastData?.name}`}</HeaderText>
+            <form className='flex gap-4' onSubmit={handleSubmit(onSubmit)}>
+                <Card className='w-full max-w-sm flex flex-col gap-4 pt-4 pb-8'>
+                    <div className="">
+                        <label className="font-medium text-black dark:text-white">
+                            Nama Broadcast
+                        </label>
+                        <Input variant='underlined'
+                            type="text"
+                            size='lg'
+                            defaultValue={broadcastData.name}
+                            classNames={{
+                                inputWrapper: errors.name && 'border-danger'
+                            }}
+                            placeholder='masukkan nama broadcast'
+                            color={errors.name ? "danger" : "default"}
+                            {...register('name', { required: true })} />
+                    </div>
+                    <div className="">
+                        <label className="font-medium text-black dark:text-white">
+                            Jadwal
+                        </label>
+                        <Input variant='underlined'
+                            type="datetime-local"
+                            size='lg'
+                            defaultValue={(new Date(broadcastData.schedule).toISOString().slice(0, 16))}
+                            classNames={{
+                                inputWrapper: errors.schedule && 'border-danger'
+                            }}
+                            color={errors.schedule ? "danger" : "default"}
+                            {...register('schedule', { required: true })} />
+                    </div>
+                    <div className="">
+                        <label className="font-medium text-black dark:text-white">
+                            Penerima
+                        </label>
+                        <div className='relative mt-2'>
+                            <div className='absolute left-0 z-10 top-1/2 -translate-y-1/2 '>
+                                <IconSearch />
+                            </div>
+                            <Input
+                                className='pl-8'
+                                variant='bordered'
+                                size='sm'
+                                placeholder='cari kontak'
+                                value={searchText}
+                                onChange={e => setSearchText(e.target.value)}
+                            />
+                        </div>
+                        <Select
+                            className='mt-4'
+                            variant='underlined'
+                            placeholder='nomor telepon penerima'
+                            selectionMode='multiple'
+                            selectedKeys={selectedReceiver}
+                            isMultiline
+                            onChange={e => {
+                                setselectedReceiver(new Set(e.target.value.split(",")));
+                            }}
+                            items={searchText ? searchedListContact : listContact}
+                            renderValue={items => (
+                                <div className='flex gap-2 flex-wrap'>
+                                    {items.map(item => (
+                                        <Chip variant='faded' key={item.key}>{item.data?.firstName}</Chip>
+                                    ))}
+                                </div>
+                            )}
+                        >
+                            {(e => (
+                                <SelectItem key={e.phone} value={e.phone}>
+                                    <div className='flex flex-col '>
+                                        <span className='text-small'>{e.firstName} {e.lastName}</span>
+                                        <span className='text-tiny'>{e.phone}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </Select>
+                        <Select
+                            className='mt-4'
+                            variant='underlined'
+                            placeholder='grup penerima'
+                            selectionMode='multiple'
+                            selectedKeys={selectedGroup}
+                            isMultiline
+                            onChange={e => {
+                                setselectedGroup(new Set(e.target.value.split(",")));
+                            }}
+                            items={listGroup}
+                            renderValue={items => (
+                                <div className='flex gap-2 flex-wrap'>
+                                    {items.map(item => (
+                                        <Chip variant='faded' key={item.key}>{item.data?.name}</Chip>
+                                    ))}
+                                </div>
+                            )}
+                        >
+                            {(e => (
+                                <SelectItem key={e.name} value={e.name}>
+                                    <div className='flex flex-col '>
+                                        <span className='text-small'>{e.name}</span>
+                                        <span className='text-tiny'>{e.type}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </Select>
+                        <Checkbox
+                            radius='none'
+                            className='mt-2'
+                            isSelected={isAllContact}
+                            onValueChange={setisAllContact}>
+                            Kirim ke semua kontak?
+                        </Checkbox>
+                    </div>
+                </Card>
+                <Card className='w-full flex flex-col gap-4 py-4'>
+                    <div>
+                        <label className="font-medium text-black dark:text-white">
+                            Pesan Broadcast
+                        </label>
+                        <Textarea
+                            radius='none'
+                            className='mt-2'
+                            variant='bordered'
+                            minRows={5}
+                            maxRows={7}
+                            // defaultValue={broadcastData.message}
+                            placeholder='tuliskan pesan disini'
+                            value={broadcastText}
+                            onChange={e => setBroadcastText(e.target.value)}
+                        // onChange={e => {
+                        //     if (e.target.value.length < 255)
+                        //         setBroadcastText(e.target.value)
+                        //     else
+                        //         setBroadcastText(e.target.value.slice(0, 255))
+                        // }}
+                        />
+                        <div className='mt-4'>
+                            <UploadFile
+                                files={files}
+                                setfiles={setfiles} />
+                        </div>
+                    </div>
+                    <div className='flex justify-end'>
+                        <Button isLoading={isLoading} color='primary' radius='none' type='submit'>Buat Broadcast</Button>
+                    </div>
+                </Card>
+            </form>
+        </>)}
     </>)
 }
 

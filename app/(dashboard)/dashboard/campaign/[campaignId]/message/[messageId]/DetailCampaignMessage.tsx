@@ -109,7 +109,7 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
         }
     }, [campaignMessageData])
     return (<>
-        <Button className='mb-4' radius='none' variant={'faded'} as={Link} href={route('campaign') + `/${campaignData?.id}/message/${campaignMessageData?.id}`}>Kembali</Button>
+        <Button className='mb-4' radius='none' variant={'faded'} as={Link} href={route('campaign') + `/${campaignData?.id}/message`}>Kembali</Button>
         <div className='flex gap-4 justify-between'>
             <HeaderText>{`Campaign Message: ${campaignData?.name}/${campaignMessageData?.name}`}</HeaderText>
         </div>
