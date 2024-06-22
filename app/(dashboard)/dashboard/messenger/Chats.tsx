@@ -2,7 +2,7 @@
 import { Avatar, Button, Input, Switch } from '@nextui-org/react'
 import { NextPage } from 'next'
 import { ChatbotSession, ConversationMessage, MessageMetadata, MessengerList } from '@/types'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import ProfileAvatar from '@/components/ProfileAvatar'
 import { formatDate } from '@/helper/formatDate'
@@ -26,6 +26,7 @@ interface Props {
 }
 
 const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessage, listMessage, metadata, sessionId, setlistMessage, user }) => {
+    const scrollRef = useRef<HTMLDivElement>(null)
     const [orderModal, setorderModal] = useState(false)
     const [contactModal, setcontactModal] = useState(false)
     const [toggleAR, settoggleAR] = useState(false)
@@ -63,6 +64,14 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
     useEffect(() => {
         fetchARStatus()
     }, [user, currentMessenger])
+    useEffect(() => {
+        if (metadata && scrollRef.current) {
+            console.log('scroll')
+            console.log(scrollRef.current.scrollHeight)
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+            // scrollRef.current.scrollIntoView()
+        }
+    }, [metadata, scrollRef])
     return (<>
         {currentMessenger && (
             <>
@@ -111,9 +120,12 @@ const Chats: NextPage<Props> = ({ currentDate, currentMessenger, fetchChatMessag
 
             </div>
         </div>
-        <div className='h-full px-6 overflow-y-auto flex flex-col'>
+        <div
+            ref={scrollRef}
+            className='h-full px-6 overflow-y-auto flex flex-col'>
             {metadata && (
                 <InfiniteScroll
+
                     dataLength={listMessage.length}
                     next={() => fetchChatMessage(metadata.currentPage + 1)}
                     hasMore={metadata.hasMore}
