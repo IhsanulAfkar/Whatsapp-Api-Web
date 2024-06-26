@@ -22,8 +22,9 @@ const Broadcast: NextPage<Props> = ({ }) => {
     const [isLoaded, setisLoaded] = useState(false)
     const [selectedBroadcast, setselectedBroadcast] = useState<SelectedKeyState>(new Set([]))
     const [broadcastData, setbroadcastData] = useState<GetBroadcast[]>([])
+    const [searchedBroadcast, setsearchedBroadcast] = useState<GetBroadcast[]>([])
     const [deleteModal, setDeleteModal] = useState(false)
-
+    const [searchText, setsearchText] = useState('')
     const handleToggleBroadcast = async (id: string, status: boolean) => {
         const result = await fetchClient({
             url: '/broadcasts/' + id + '/status',
@@ -77,11 +78,21 @@ const Broadcast: NextPage<Props> = ({ }) => {
             toast.error('Broadcast gagal dihapus')
         deletedBroadcast = null
     }
+    const filterBroadcast = (text: string) => {
+        const regex = new RegExp(text.toLowerCase(), 'i')
+        return broadcastData.filter(item => (regex.test(item.name)))
+    }
     useEffect(() => {
         if (session?.user) {
             fetchBroadcast()
         }
     }, [session?.user])
+    useEffect(() => {
+        if (searchText) {
+            const searchResult = filterBroadcast(searchText)
+            setsearchedBroadcast(searchResult)
+        }
+    }, [searchText])
     return (<>
         <DeleteBroadcastModal
             count={selectedBroadcast === "all" ? selectedBroadcast : selectedBroadcast.size}
@@ -91,7 +102,9 @@ const Broadcast: NextPage<Props> = ({ }) => {
         />
         <div className='rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark flex justify-between w-full py-3 px-7.5 items-center'>
             <div className='relative max-w-sm w-full'>
-                <Input type='text' className='w-full' variant='underlined' placeholder='cari broadcast' />
+                <Input type='text' className='w-full' variant='underlined' placeholder='cari broadcast'
+                    value={searchText}
+                    onChange={e => setsearchText(e.target.value)} />
                 <div className='absolute top-1/2 -translate-y-1/2 right-4'>
                     <IconSearch />
                 </div>
@@ -129,7 +142,7 @@ const Broadcast: NextPage<Props> = ({ }) => {
                     <p className='text-[16px] font-bold'>Broadcast masih kosong</p>
                 </div>
             </div>}
-                items={broadcastData}
+                items={searchText ? searchedBroadcast : broadcastData}
             >
                 {(item: GetBroadcast) => (
                     <TableRow key={item.id}>

@@ -163,7 +163,7 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
             </div>
         </Card>
         {campaignData && (
-            <div className="w-full bg-white rounded-md px-3 py-3 pb-6 mt-6">
+            <div className="w-full bg-white dark:bg-boxdark rounded-md px-3 py-3 pb-6 mt-6">
                 <div className="flex gap-2">
                     <Tabs aria-label="Options" variant="light" color="primary" radius="none" size="lg"
                         selectedKey={currentPage}
@@ -195,7 +195,7 @@ const DetailCampaignMessage: NextPage<Props> = ({ campaignId, messageId }) => {
                             <TableColumn>Pesan</TableColumn>
                         </TableHeader>
                         <TableBody emptyContent={
-                            <div className='w-full bg-white p-12'>
+                            <div className='w-full p-12'>
                                 <div className='w-full max-w-md mx-auto flex flex-col gap-4'>
                                     <p className='text-[16px] font-bold'>Belum ada pesan {currentPage}
                                     </p>

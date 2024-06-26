@@ -23,6 +23,7 @@ const Campaign: NextPage<Props> = ({ }) => {
     const [deleteModal, setdeleteModal] = useState(false)
     const [selectedCampaign, setselectedCampaign] = useState<Selection>(new Set())
     const [campaignData, setCampaignData] = useState<GetCampaign[]>([])
+    const [searchedCampaign, setsearchedCampaign] = useState<GetCampaign[]>([])
     const fetchCampaign = async () => {
         const result = await fetchClient({
             url: '/campaigns',
@@ -71,11 +72,21 @@ const Campaign: NextPage<Props> = ({ }) => {
         }
         deletedCampaign = null
     }
+    const filterCampaign = (text: string) => {
+        const regex = new RegExp(text.toLowerCase(), 'i')
+        return campaignData.filter(item => (regex.test(item.name) || regex.test(item.registrationSyntax.toLowerCase())))
+    }
     useEffect(() => {
         if (session?.user) {
             fetchCampaign()
         }
     }, [session?.user])
+    useEffect(() => {
+        if (searchText) {
+            const searchResult = filterCampaign(searchText)
+            setsearchedCampaign(searchResult)
+        }
+    }, [searchText])
     return (<>
         <DeleteCampaignModal
             openModal={deleteModal}
@@ -131,7 +142,7 @@ const Campaign: NextPage<Props> = ({ }) => {
                     <p className='text-[16px] font-bold'>Campaign masih kosong</p>
                 </div>
             </div>}
-                items={searchText ? [] : campaignData}>
+                items={searchText ? searchedCampaign : campaignData}>
                 {item => (
                     <TableRow key={item.id}>
                         <TableCell >{item.name}</TableCell>

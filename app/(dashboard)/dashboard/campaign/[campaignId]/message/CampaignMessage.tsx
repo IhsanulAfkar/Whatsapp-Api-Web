@@ -52,6 +52,10 @@ const CampaignMessage: NextPage<Props> = ({ campaignId }) => {
         }
         toast.error('Gagal fetch campaign message')
     }
+    const filterCampaign = (text: string) => {
+        const regex = new RegExp(text.toLowerCase(), 'i')
+        return campaignMessage.filter(item => (regex.test(item.name)))
+    }
     useEffect(() => {
         if (session?.user) {
             fetchCampaign()
@@ -62,11 +66,19 @@ const CampaignMessage: NextPage<Props> = ({ campaignId }) => {
             fetchCampaignMessage()
         }
     }, [campaignData])
+    useEffect(() => {
+        if (searchText) {
+            const searchResult = filterCampaign(searchText)
+            setsearchMessage(searchResult)
+        }
+    }, [searchText])
     return (<>
         <HeaderText>{`Pesan Campaign: ${campaignData?.name}`}</HeaderText>
         <Card className='flex justify-between gap-4 items-center flex-col md:flex-row'>
             <div className='relative max-w-sm w-full'>
-                <Input type='text' className='w-full' variant='underlined' placeholder='cari message' />
+                <Input type='text' className='w-full' variant='underlined' placeholder='cari pesan campaign'
+                    value={searchText}
+                    onChange={e => setsearchText(e.target.value)} />
                 <div className='absolute top-1/2 -translate-y-1/2 right-4'>
                     <IconSearch />
                 </div>
