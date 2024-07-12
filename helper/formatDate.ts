@@ -7,10 +7,9 @@ export const formatDate = (inputDate: string) => {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true,
+        hour12: false,
     })
     try {
-
         return formatter.format(date).toString()
     } catch (error) {
         console.log(error)
