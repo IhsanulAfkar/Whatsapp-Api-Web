@@ -2,6 +2,7 @@ export const formatDate = (inputDate: string) => {
 
     const date = new Date(inputDate)
     const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Jakarta',
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
